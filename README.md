@@ -3,8 +3,7 @@ aggregating reddit comments and employing NLP to sift through various recommenda
 
 ## Idea and feature set:
 
-I frequently find myself googling "best <insert thing> reddit" and so to expedite that, I figured I'd make a tool
-to aggregate google results of reddit comments and do some natural language processing to return top results.
+I frequently find myself googling "best \<insert item type, restaurant, thing to do here\> reddit" and so to expedite that, I made something useful to aggregate google results of reddit comments and do some natural language processing to return top results.
 
 The pipeline sort of looks like this:
 
@@ -14,7 +13,7 @@ simple search query - it was initially going to be **Place** and **Action**, as 
 but clearly other usages such as online shopping recommendations do **not** include a place. 
 
 So at the moment, we let google take care of figuring out the intent of a user's search, but I imagine there would be
-better results by requiring more specificity on inputs and then subsequently being able to tweak the results processing based
+better results by requiring more specificity on inputs and then subsequently being able to tweak the processing based
 on those inputs.
 
 
@@ -40,3 +39,18 @@ using spacy - https://spacy.io/usage/spacy-101#annotations-ner
 
 This also needs exploration, but the idea is that a top-level comment will have one, if not more referrals mentioned.
 These referrals would then get tagged and extracted where frequency and sentiment can then also be calculated?
+
+**Potential outputs**
+
+Give me the wisdom of the crowd - I want top lists, a way to dig deeper into the real context behind those lists,
+an indicator on sentiment for a few items.
+
+Need to have:
+
+*Mentions*
+
+*Most positive aggregated sentiment - AKA best rated*
+
+*Hot - recency + sentiment)
+
+*More to come...*
