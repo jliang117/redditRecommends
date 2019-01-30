@@ -51,6 +51,6 @@ Need to have:
 
 *Most positive aggregated sentiment - AKA best rated*
 
-*Hot - recency + sentiment)
+*Hot - recency + sentiment*
 
 *More to come...*
