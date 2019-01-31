@@ -15,8 +15,6 @@ Given the prompt - `What does reddit think about ___`? A few very simple questio
 
 Let's focus on the first structure for now.
 
-**Input**
-We'll have an open search box, but certain keywords such as `In` will trigger different kinds of extraction. 
 
 **Fetch data**
 
@@ -33,13 +31,6 @@ This is to be implemented in a way that retains and tracks the information of th
 recommendations are multiple sentences where the proper noun being referred to is in one of the beginning sentences. Ex:
 
 >"Naruto Ramen. Very small, cash only (IIRC), but great portions, great broth, great noodles, and great bowls. Go during lunch for some nice specials. "
-
-**Named Entity Recognition**
-
-using spacy - https://spacy.io/usage/spacy-101#annotations-ner
-
-This also needs exploration, but the idea is that a top-level comment will have one, if not more referrals mentioned.
-These referrals would then get tagged and extracted where frequency and sentiment can then also be calculated?
 
 
 # Usage
