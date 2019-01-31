@@ -35,11 +35,9 @@ def extractCommentsFromSearch(searchString, googlePageLimit = 1, commentDepth = 
 			submission.comments.replace_more(limit=commentDepth)
 			for comment in submission.comments.list():
 				if(filterCommentForRelevancy(comment)):
-
-					normalized_body = normalizeComment(comment.body)
 					buildRow = [{
 						author:comment.author,
-						body:normalized_body,
+						body:comment.body,
 						created:comment.created_utc,
 						permalink:comment.permalink,
 						subreddit:comment.subreddit
@@ -65,6 +63,5 @@ def filterCommentForRelevancy(comment):
 
 
 df = extractCommentsFromSearch("nyc ramen" + SEARCH_REDDIT)
-df.to_csv(DATA_DIR+'nyc_ramen_normalized.csv',index = False, encoding = 'utf-8')
-print(df.head())
-print(df.subreddit.value_counts())
+df.to_csv(DATA_DIR+'nyc_ramen.csv',index = False, encoding = 'utf-8')
+
