@@ -11,7 +11,7 @@ Given the prompt - `What does reddit think about ___`? A few very simple questio
 
 `Food/Activity/Thing` **IN** `Place` ex. `Ramen in Nyc` - yields places, landmarks, restaurants
 
-`Superlative` `Object` ex. `Best Python Course` - yields objects, links, shopping sites
+`Superlative` `Object` ex. `Best 4k TV` - yields objects, links, shopping sites
 
 Let's focus on the first structure for now.
 
