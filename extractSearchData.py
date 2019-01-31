@@ -11,7 +11,6 @@ SEARCH_REDDIT = ' site:reddit.com'
 
 # TODO REMOVE ON COMMIT - also find a more automatic solution
 
-
 reddit = praw.Reddit(client_id=CLIENT_ID,client_secret=CLIENT_SECRET,user_agent=USER_AGENT)
 
 def initRedditClient():
