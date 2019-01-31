@@ -5,17 +5,17 @@ aggregating reddit comments and employing NLP to sift through various recommenda
 
 I frequently find myself googling "best \<insert item type, restaurant, thing to do here\> reddit" and so to expedite that, I made something useful to aggregate google results of reddit comments and do some natural language processing to return top results.
 
-The pipeline sort of looks like this:
+So, when I'm using reddit to search for testimonials or recommendations on a topic, I want to know what reddit thinks - how will I ask it questions (as in what forms of questions are possible)?
 
-**Input**: 
+Given the prompt - `What does reddit think about ___`? A few very simple question structures come to mind:
 
-simple search query - it was initially going to be **Place** and **Action**, as in *NYC* and *eat ramen*, 
-but clearly other usages such as online shopping recommendations do **not** include a place. 
+`Food/Activity/Thing` **IN** `Place` ex. `Ramen in Nyc` - yields places, landmarks, restaurants
+`Superlative` `Object` ex. `Best Python Course` - yields objects, links, shopping sites
 
-So at the moment, we let google take care of figuring out the intent of a user's search, but I imagine there would be
-better results by requiring more specificity on inputs and then subsequently being able to tweak the processing based
-on those inputs.
+For now, I'll focus on the first structure. 
 
+**Input**
+We'll have an open search box, but certain keywords such as `In` will trigger different kinds of extraction. 
 
 **Fetch data**
 
