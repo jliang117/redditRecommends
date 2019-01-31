@@ -40,17 +40,25 @@ using spacy - https://spacy.io/usage/spacy-101#annotations-ner
 This also needs exploration, but the idea is that a top-level comment will have one, if not more referrals mentioned.
 These referrals would then get tagged and extracted where frequency and sentiment can then also be calculated?
 
-**Potential outputs**
 
-Give me the wisdom of the crowd - I want top lists, a way to dig deeper into the real context behind those lists,
-an indicator on sentiment for a few items.
+# Usage
 
-Need to have:
+Currently in the middle of messing with things, but searching is basically the `extractCommentsFromSearch` method in `extractSearchData.py`, and data extraction and visualization is `csvToExtractedFreqDist` in `topicExtraction.py`
 
-*Mentions*
+Updating for usability will come later...
 
-*Most positive aggregated sentiment - AKA best rated*
+# Output
 
-*Hot - recency + sentiment*
+Currently we get back a frequency distribution with `30` terms plotted using `freq_words` in `topicExtraction.py`. An example when searching for `nyc ramen`:
 
-*More to come...*
+![Adjectives included](/img/freqDistExtracted.png)
+
+The set of tagged words extracted can be tweaked in `extract_candidate_words`, the default set includes adjectives and looks like
+
+`['JJ','JJR','JJS','NN','NNP','NNS','NNPS']`
+
+Removing adjectives yields a better list specific to this kind of search, and so the frequency distribution gives you a few more places:
+
+![Adjectives NOT included](/img/freqDistNonAdj.png)
+
+
