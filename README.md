@@ -10,9 +10,10 @@ So, when I'm using reddit to search for testimonials or recommendations on a top
 Given the prompt - `What does reddit think about ___`? A few very simple question structures come to mind:
 
 `Food/Activity/Thing` **IN** `Place` ex. `Ramen in Nyc` - yields places, landmarks, restaurants
+
 `Superlative` `Object` ex. `Best Python Course` - yields objects, links, shopping sites
 
-For now, I'll focus on the first structure. 
+Let's focus on the first structure for now.
 
 **Input**
 We'll have an open search box, but certain keywords such as `In` will trigger different kinds of extraction. 
