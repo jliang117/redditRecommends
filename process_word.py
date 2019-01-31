@@ -10,8 +10,9 @@ import unicodedata
 LANG = 'english'
 #nlp_vec = spacy.load('en_vecs', parse = True, tag=True, #entity=True)
 
-def initSpacy():
-	return spacy.load('en_core', parse=True, tag=True, entity=True)
+
+def initSpacy(parser = True, tagging = False, ner = False):
+	return spacy.load('en_core', parse=parser, tag=tagging, entity=ner)
 
 def initTokenizer():
 	return ToktokTokenizer()
@@ -60,7 +61,7 @@ def expandContractions(text, contraction_mapping=CONTRACTION_MAP):
     expanded_text = re.sub("'", "", expanded_text)
     return expanded_text
 
-# print(expandContractions("test'ng that this'll work shouldn't it?"))
+# print(expandContractions("test'ng that this'll work shouldn't it?"))	
 
 def removeSpecialCharacters(text, remove_digits=False):
     pattern = r'[^a-zA-z0-9\s]' if not remove_digits else r'[^a-zA-z\s]'
@@ -73,10 +74,13 @@ def stemText(text):
     return text
 
 
-def lemmatizeText(text):
-    text = nlp(text)
-    text = ' '.join([word.lemma_ if word.lemma_ != '-PRON-' else word.text for word in text])
-    return text
+def lemmatizeText(text, nlp):
+	nlp_text = nlp(text)
+	text = ' '.join([word.lemma_ if word.lemma_ != '-PRON-' else word.text for word in nlp_text])
+	return text
+
+def lemmaWithTags(text, nlp, tags):
+	nlp_text = nlp(text)
 
 def removeStopwords(text, is_lower_case = False): 
 	tokenizer = initTokenizer()
@@ -86,6 +90,7 @@ def removeStopwords(text, is_lower_case = False):
 	tokens = [token.strip() for token in tokens]
 	if is_lower_case:
 		filtered_tokens = [token for token in tokens if token not in stopword_list]
+		filtered_text = ' '.join(filtered_tokens)
 	else:
 		filtered_tokens = [token for token in tokens if token.lower() not in stopword_list]
 		filtered_text = ' '.join(filtered_tokens)
@@ -93,13 +98,13 @@ def removeStopwords(text, is_lower_case = False):
 
 # print(removeStopwords("test have me please a the to their thing"))
 
-def sentence_separation(text):
+def sentenceSeparation(text):
 	sent_detector = nltk.data.load('tokenizers/punkt/english.pickle')
 	print('\n-----\n'.join(sent_detector.tokenize(text.strip())))
 
 
-def normalize_corpus(corpus, expand_contractions = False, remove_stopwords = False, 
-	remove_accented_chars = False, remove_special_chars = False, lower_case_text = False, lemmatize_text = False):
+def normalizeCorpus(corpus, expand_contractions = False, remove_stopwords = False, 
+	remove_accented_chars = False, remove_special_chars = False, lower_case_text = False, lemmatize_text = False, nlp = None):
 	normalized = []
 	for doc in corpus:
 		if remove_accented_chars:
@@ -109,11 +114,28 @@ def normalize_corpus(corpus, expand_contractions = False, remove_stopwords = Fal
 		if lower_case_text:
 			doc = doc.lower()
 		if lemmatize_text:
-			doc = lemmatizeText(doc)
+			doc = lemmatizeText(doc, nlp)
 		if remove_special_chars:
 			doc = removeSpecialCharacters(doc)
 		if remove_stopwords:
 			doc = removeStopwords(doc,lower_case_text)
 		normalized.append(doc)
 	return normalized
+
+def normalizeText(text, expand_contractions = False, 
+	remove_stopwords = False, remove_accented_chars = False,
+	remove_special_chars = False, lower_case_text = False, lemmatize_text = False, nlp = None):
+	if remove_accented_chars:
+		text = remove_accented_chars(text)
+	if expand_contractions:
+		text = expandContractions(text)
+	if lower_case_text:
+		text = text.lower()
+	if lemmatize_text:
+		text = lemmatizeText(text,nlp)
+	if remove_special_chars:
+		text = removeSpecialCharacters(text)
+	if remove_stopwords:
+		text = removeStopwords(text,lower_case_text)
+	return text
 

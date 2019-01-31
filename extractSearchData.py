@@ -4,13 +4,13 @@ import pandas as pd
 
 import process_word
 
+DATA_DIR = 'data/'
 
 PAGE_LIMIT = 1
 SEARCH_REDDIT = ' site:reddit.com'
 
-CLIENT_ID = '<Your client id>'
-CLIENT_SECRET = '<Your client secret>'
-USER_AGENT = 'Your user agent>'
+# TODO REMOVE ON COMMIT - also find a more automatic solution
+
 
 reddit = praw.Reddit(client_id=CLIENT_ID,client_secret=CLIENT_SECRET,user_agent=USER_AGENT)
 
@@ -65,6 +65,6 @@ def filterCommentForRelevancy(comment):
 
 
 df = extractCommentsFromSearch("nyc ramen" + SEARCH_REDDIT)
-df.to_csv('nyc_ramen_normalized.csv',index = False, encoding = 'utf-8')
+df.to_csv(DATA_DIR+'nyc_ramen_normalized.csv',index = False, encoding = 'utf-8')
 print(df.head())
 print(df.subreddit.value_counts())

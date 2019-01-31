@@ -12,7 +12,7 @@ import process_word
 nlp = spacy.load('en_core', parse=True, tag=True, entity=True)
 #nlp_vec = spacy.load('en_vecs', parse = True, tag=True, #entity=True)
 
-ramen_df = pd.read_csv('nyc_ramen_normalized.csv')
+ramen_df = pd.read_csv('data/nyc_ramen_normalized.csv')
 
 #build tagged sentences
 sentence = str(ramen_df.iloc[9].body)
