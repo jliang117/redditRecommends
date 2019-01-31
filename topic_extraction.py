@@ -1,6 +1,6 @@
+import itertools
 import nltk
 from nltk import FreqDist
-
 import pandas as pd
 import numpy as np
 import spacy
@@ -17,11 +17,11 @@ import seaborn as sns
 import process_word
 
 
-df = pd.read_csv('data/nyc_ramen.csv')
 
-def freq_words(x, terms = 30): 
+
+def freq_words(texts, terms = 30): 
 	
-	all_words = ' '.join([text for text in x])
+	all_words = ' '.join([text for text in texts])
 	all_words = all_words.split()
 	
 	fdist = FreqDist(all_words)
@@ -35,8 +35,6 @@ def freq_words(x, terms = 30):
 	ax.set(ylabel = 'Count', autoscale_on = True)
 	ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha="right")
 	plt.show()
-
-body = df['body'] # series of comments
 
 # nlp = process_word.initSpacy()
 
@@ -71,7 +69,6 @@ def extract_candidate_chunks(text, grammar=r'KT: {(<JJ>* <NN.*>+ <IN>)? <JJ>* <N
     # candidates = [' '.join(word for word, pos, chunk in group).lower() for key, group in itertools.groupby(all_chunks, keyfunction) if key]
     # return [cand for cand in candidates if cand not in stop_words and not all(char in punct for char in cand)]
 
-# print(extract_candidate_chunks(body[9]))
 
 def extract_candidate_words(text, good_tags=set(['JJ','JJR','JJS','NN','NNP','NNS','NNPS'])):
     import itertools, nltk, string
@@ -83,14 +80,13 @@ def extract_candidate_words(text, good_tags=set(['JJ','JJR','JJS','NN','NNP','NN
     tagged_words = itertools.chain.from_iterable([nltk.pos_tag(tokens = nltk.word_tokenize(sent)) for sent in nltk.sent_tokenize(text)])
     
                                                                     
-    # filter on certain POS tags and lowercase all words
-    # this originally was this horrible unreadable thing - chunk this
+    # filter on certain POS tags and lowercase all words 
     candidates = [word.lower() for word, tag in tagged_words 
     if tag in good_tags and word.lower() not in stop_words and not all(char in punct for char in word)]
 
     return candidates
 
-# print(extract_candidate_words(body[9]))
+
 
 def score_keyphrases_by_tfidf(texts):
     import gensim, nltk
@@ -107,14 +103,13 @@ def score_keyphrases_by_tfidf(texts):
 
 # tfidfs, id2word = score_keyphrases_by_tfidf(body)
 
-import heapq
-from operator import itemgetter
-tfidfs, id2word = score_keyphrases_by_tfidf(body)
+def csvToExtractedFreqDist(file):
+	df = pd.read_csv(file)
+	body = df['body'] # series of comments
+	df['candidateWords'] = df['body'].apply(lambda txt:extract_candidate_words(txt))
+	freq_words(df['candidateWords'].sum())
 
-for idx, doc in enumerate(tfidfs):
-	for wid,score in heapq.nlargest(10, doc, key = itemgetter(1)):
-		print("{:0.3f}: {}".format(score, id2word[wid]))
-		print("")
 
+csvToExtractedFreqDist('data/nyc_ramen.csv')
  
 
