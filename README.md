@@ -53,7 +53,7 @@ Currently we get back a frequency distribution with `30` terms plotted using `fr
 
 ![Adjectives included](/img/freqDistExtracted.png)
 
-The set of tagged words extracted can be tweaked in `extract_candidate_words`, the default set includes adjectives and looks like
+The set of tagged words extracted can be tweaked in `extract_candidate_words`, the default set includes adjectives and looks like: (from https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html)
 
 `['JJ','JJR','JJS','NN','NNP','NNS','NNPS']`
 
