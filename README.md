@@ -53,4 +53,6 @@ Removing adjectives yields a better list specific to this kind of search, and so
 
 ![Adjectives NOT included](/img/freqDistNonAdj.png)
 
+Looks like there's still room for improvement - if we already know the `location`, can't we match on things that are the location, and possibly similar things?
+
 
