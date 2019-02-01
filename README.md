@@ -55,4 +55,5 @@ Removing adjectives yields a better list specific to this kind of search, and so
 
 Looks like there's still room for improvement - if we already know the `location`, can't we match on things that are the location, and possibly similar things?
 
+So I stumbled upon something called Word Mover's Distance - https://mkusner.github.io/publications/WMD.pdf. Looks promising...
 
