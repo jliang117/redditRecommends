@@ -63,18 +63,32 @@ def filterCommentForRelevancy(comment):
 	return True
 	#potentially do preprocessing here as well
 
-def getTopScoring(file, n = 5):
+
+#move this to separate dataframe insights script? or create two classes, commentExtractor and dfData?
+
+def readDf(file):
 	try:
 		df = pd.read_csv(file)
-		return df.nlargest(n,SCORE)
+		return df
 	except IOError as e:
 		print(file + " cannot be read")
 		sys.exit()
-	
+
+def getTopScoring(file, n = 5):
+	df = readDf(file)
+	return df.nlargest(n = n, columns = SCORE)
+
+def getSubbreddits(file):
+	df = readDf(file)
+	return df[SUBREDDIT].value_counts()
 
 
-# df = extractCommentsFromSearch("nyc ramen" + SEARCH_REDDIT)
-# df.to_csv(DATA_DIR+'nyc_ramen.csv',index = False, encoding = 'utf-8')
+df = extractCommentsFromSearch("nyc ramen" + SEARCH_REDDIT)
+df.to_csv(DATA_DIR+'nyc_ramen.csv',index = False, encoding = 'utf-8')
+
+#Usage examples
 
 print(getTopScoring(file = DATA_DIR + 'nyc_ramen.csv', n = 10 )['body'])
+
+print(getSubbreddits(file = DATA_DIR + 'nyc_ramen.csv'))
 
