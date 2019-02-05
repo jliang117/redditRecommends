@@ -14,12 +14,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 #local
-import process_word
+import processWord
 
 
 
 
-def freq_words(texts, terms = 30): 
+def freq_words(texts, terms = 30, show = False): 
 	
 	all_words = ' '.join([text for text in texts])
 	all_words = all_words.split()
@@ -34,7 +34,9 @@ def freq_words(texts, terms = 30):
 	ax = sns.barplot(data = data, x = 'word', y = 'count')
 	ax.set(ylabel = 'Count', autoscale_on = True)
 	ax.set_xticklabels(ax.get_xticklabels(), rotation=40, ha="right")
-	plt.show()
+	if show:
+		plt.show()
+
 
 # nlp = process_word.initSpacy()
 
@@ -48,68 +50,70 @@ def freq_words(texts, terms = 30):
 # freq_words(df['bodyNormalized'])
 
 def extract_candidate_chunks(text, grammar=r'KT: {(<JJ>* <NN.*>+ <IN>)? <JJ>* <NN.*>+}'):
-    import itertools, nltk, string, operator
-    
-    # exclude candidates that are stop words or entirely punctuation
-    punct = set(string.punctuation)
-    stop_words = set(nltk.corpus.stopwords.words('english'))
-    # tokenize, POS-tag, and chunk using regular expressions
-    chunker = nltk.chunk.regexp.RegexpParser(grammar)
-    #get list of tagged sentences
+	import itertools, nltk, string, operator
+	
+	# exclude candidates that are stop words or entirely punctuation
+	punct = set(string.punctuation)
+	stop_words = set(nltk.corpus.stopwords.words('english'))
+	# tokenize, POS-tag, and chunk using regular expressions
+	chunker = nltk.chunk.regexp.RegexpParser(grammar)
+	#get list of tagged sentences
 
-    tagged_sents = [nltk.pos_tag(tokens = nltk.word_tokenize(sent)) for sent in nltk.sent_tokenize(text)]
-    all_chunks = list(itertools.chain.from_iterable(nltk.chunk.tree2conlltags(chunker.parse(tagged_sent)) for tagged_sent in tagged_sents))
-    # join constituent chunk words into a single chunked phrase
-
-
-    grouped = itertools.groupby(all_chunks,lambda x: x[2] != 'O' )
-    for key, chunks in grouped:
-    	for chunk in chunks:
-    		print(chunk)
-    # candidates = [' '.join(word for word, pos, chunk in group).lower() for key, group in itertools.groupby(all_chunks, keyfunction) if key]
-    # return [cand for cand in candidates if cand not in stop_words and not all(char in punct for char in cand)]
+	tagged_sents = [nltk.pos_tag(tokens = nltk.word_tokenize(sent)) for sent in nltk.sent_tokenize(text)]
+	all_chunks = list(itertools.chain.from_iterable(nltk.chunk.tree2conlltags(chunker.parse(tagged_sent)) for tagged_sent in tagged_sents))
+	# join constituent chunk words into a single chunked phrase
 
 
-def extract_candidate_words(text, good_tags=set(['JJ','JJR','JJS','NN','NNP','NNS','NNPS'])):
-    import itertools, nltk, string
+	grouped = itertools.groupby(all_chunks,lambda x: x[2] != 'O' )
+	for key, chunks in grouped:
+		for chunk in chunks:
+			print(chunk)
+	# candidates = [' '.join(word for word, pos, chunk in group).lower() for key, group in itertools.groupby(all_chunks, keyfunction) if key]
+	# return [cand for cand in candidates if cand not in stop_words and not all(char in punct for char in cand)]
 
-    # exclude candidates that are stop words or entirely punctuation
-    punct = set(string.punctuation)
-    stop_words = set(nltk.corpus.stopwords.words('english'))
-    # tokenize and POS-tag words
-    tagged_words = itertools.chain.from_iterable([nltk.pos_tag(tokens = nltk.word_tokenize(sent)) for sent in nltk.sent_tokenize(text)])
-    
-                                                                    
-    # filter on certain POS tags and lowercase all words 
-    candidates = [word.lower() for word, tag in tagged_words 
-    if tag in good_tags and word.lower() not in stop_words and not all(char in punct for char in word)]
 
-    return candidates
+def extract_candidate_words(text, good_tags=set(['NN','NNP','NNS','NNPS'])):
+	import itertools, nltk, string
+
+	# exclude candidates that are stop words or entirely punctuation
+	punct = set(string.punctuation)
+	stop_words = set(nltk.corpus.stopwords.words('english'))
+	# tokenize and POS-tag words
+	tagged_words = itertools.chain.from_iterable([nltk.pos_tag(tokens = nltk.word_tokenize(sent)) for sent in nltk.sent_tokenize(text)])
+	
+																	
+	# filter on certain POS tags and lowercase all words 
+	candidates = [word.lower() for word, tag in tagged_words 
+	if tag in good_tags and word.lower() not in stop_words and not all(char in punct for char in word)]
+
+	return candidates
 
 
 
 def score_keyphrases_by_tfidf(texts):
-    import gensim, nltk
-    
-    boc_texts = [extract_candidate_words(text) for text in texts]
-    # make gensim dictionary and corpus
-    dictionary = gensim.corpora.Dictionary(boc_texts)
-    corpus = [dictionary.doc2bow(boc_text) for boc_text in boc_texts]
-    # transform corpus with tf*idf model
-    tfidf = gensim.models.TfidfModel(corpus)
-    corpus_tfidf = tfidf[corpus]
-    
-    return corpus_tfidf, dictionary
+	import gensim, nltk
+	
+	boc_texts = [extract_candidate_words(text) for text in texts]
+	# make gensim dictionary and corpus
+	dictionary = gensim.corpora.Dictionary(boc_texts)
+	corpus = [dictionary.doc2bow(boc_text) for boc_text in boc_texts]
+	# transform corpus with tf*idf model
+	tfidf = gensim.models.TfidfModel(corpus)
+	corpus_tfidf = tfidf[corpus]
+	
+	return corpus_tfidf, dictionary
 
 # tfidfs, id2word = score_keyphrases_by_tfidf(body)
 
-def csvToExtractedFreqDist(file):
+def csvToExtractedFreqDist(file, mute = True):
 	df = pd.read_csv(file)
-	body = df['body'] # series of comments
-	df['candidateWords'] = df['body'].apply(lambda txt:extract_candidate_words(txt))
+	body = df['body']
+	appFunc = lambda txt: extract_candidate_words(txt)
+	df['candidateWords'] = df['body'].apply(appFunc)
 	freq_words(df['candidateWords'].sum())
+	return df
 
 
-csvToExtractedFreqDist('data/nyc_ramen.csv')
+csvToExtractedFreqDist('data/headphone_recommend.csv')
  
 

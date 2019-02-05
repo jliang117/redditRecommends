@@ -11,7 +11,6 @@ SEARCH_REDDIT = ' site:reddit.com'
 
 # TODO REMOVE ON COMMIT - also find a more automatic solution
 
-
 #global vars for csv column names
 AUTHOR = 'author'
 BODY = 'body'
@@ -39,7 +38,7 @@ def extractCommentsFromSearch(searchString, googlePageLimit = 1, commentDepth = 
 				if(filterCommentForRelevancy(comment)):
 					buildRow = [{
 						AUTHOR:comment.author,
-						BODY:comment.body,
+						BODY:normalizeComment(comment.body),
 						CREATED:comment.created_utc,
 						SCORE:comment.score,
 						PERMALINK:comment.permalink,
@@ -56,6 +55,7 @@ def extractCommentsFromSearch(searchString, googlePageLimit = 1, commentDepth = 
 
 def normalizeComment(sent):
 	sent = processWord.expandContractions(sent)
+	sent = processWord.removeSpecialCharacters(sent)
 	sent = processWord.removeStopwords(sent)
 	return sent
 
@@ -83,12 +83,12 @@ def getSubbreddits(file):
 	return df[SUBREDDIT].value_counts()
 
 
-df = extractCommentsFromSearch("nyc ramen" + SEARCH_REDDIT)
-df.to_csv(DATA_DIR+'nyc_ramen.csv',index = False, encoding = 'utf-8')
+df = extractCommentsFromSearch("ramen nyc" + SEARCH_REDDIT)
+df.to_csv(DATA_DIR+'ramen_normalized.csv',index = False, encoding = 'utf-8')
 
 #Usage examples
 
-print(getTopScoring(file = DATA_DIR + 'nyc_ramen.csv', n = 10 )['body'])
+# print(getTopScoring(file = DATA_DIR + 'nyc_ramen.csv', n = 10 )['body'])
 
-print(getSubbreddits(file = DATA_DIR + 'nyc_ramen.csv'))
+# print(getSubbreddits(file = DATA_DIR + 'nyc_ramen.csv'))
 
