@@ -56,3 +56,5 @@ Removing adjectives yields a better list specific to this kind of search, and so
 Looks like there's still room for improvement - if we already know the `location`, can't we match on things that are the location, and possibly similar things?
 
 Allen NLP's NER model seems to work well
+
+![On a sample comment](/img/allenNER.png)
