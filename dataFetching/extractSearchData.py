@@ -4,7 +4,7 @@ import pandas as pd
 
 import processWord
 
-DATA_DIR = '../data/'
+DATA_DIR = 'data/'
 
 PAGE_LIMIT = 1
 SEARCH_REDDIT = ' site:reddit.com'
