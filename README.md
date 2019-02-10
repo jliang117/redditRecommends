@@ -20,6 +20,12 @@ Let's focus on the first structure for now.
 
 (using https://github.com/abenassi/Google-Search-API) and praw (https://github.com/praw-dev/praw)
 
+To use `extractSearchData.py`, add your own reddit credentials as shown [here](https://github.com/reddit-archive/reddit/wiki/OAuth2-Quick-Start-Example#first-steps)
+
+    CLIENT_ID = 'your id'
+    CLIENT_SECRET = 'Your secret'
+    USER_AGENT = 'script:redditRecommends:v0.0.1 '
+
 
 **Normalization**
 
