@@ -29,7 +29,9 @@ To use `extractSearchData.py`, add your own reddit credentials as shown [here](h
 
 **Normalization**
 
-using nltk - https://github.com/nltk/nltk
+using nltk - https://github.com/nltk/nltk and implemented in `processWord.py`
+
+Named Entity Recognition doesn't make use of much normalization, but otherdownstream tasks will
 
 **Sentence Segmentation**
 
@@ -38,12 +40,9 @@ recommendations are multiple sentences where the proper noun being referred to i
 
 >"Naruto Ramen. Very small, cash only (IIRC), but great portions, great broth, great noodles, and great bowls. Go during lunch for some nice specials. "
 
-
 # Usage
 
-Currently in the middle of messing with things, but searching is basically the `extractCommentsFromSearch` method in `extractSearchData.py`, and data extraction and visualization is `csvToExtractedFreqDist` in `topicExtraction.py`
-
-Updating for usability will come later...
+To be impl
 
 # Output
 
@@ -61,6 +60,6 @@ Removing adjectives yields a better list specific to this kind of search, and so
 
 Looks like there's still room for improvement - if we already know the `location`, can't we match on things that are the location, and possibly similar things?
 
-Allen NLP's NER model seems to work well
+Currently comparing Entity extraction between - Allen NLP, SpaCy, and Flair
 
 ![On a sample comment](/img/allenNER.png)
