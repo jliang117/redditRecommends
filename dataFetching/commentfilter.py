@@ -1,10 +1,8 @@
 import spacy
-import pandas as pd
-import numpy as np
 import nltk
 import re
 from nltk.tokenize.toktok import ToktokTokenizer
-from contractions import CONTRACTION_MAP
+from dataFetching.contractions import CONTRACTION_MAP
 import unicodedata
 
 LANG = 'english'

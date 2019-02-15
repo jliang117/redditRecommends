@@ -1,10 +1,16 @@
+import sys
+import json
+
 import praw
 from google import google
 import pandas as pd
 
-import processWord
+from dataFetching import commentfilter
+from dataFetching.processData import NERExtraction
 
-DATA_DIR = 'data/'
+from loguru import logger
+
+DATA_DIR = '../data/'
 
 PAGE_LIMIT = 1
 SEARCH_REDDIT = ' site:reddit.com'
@@ -38,27 +44,31 @@ def extractCommentsFromSearch(searchString, googlePageLimit=1, commentDepth=None
             for comment in submission.comments.list():
                 if(filterCommentForRelevancy(comment)):
                     if len(comment.body) > 3:
+                        if comment.author is not None:
+                            redditName = comment.author.name
+                        else:
+                            redditName = ''
+                        subRedditName = comment.subreddit.display_name
                         buildRow = [{
-                            AUTHOR: comment.author,
+                            AUTHOR: redditName,
                             BODY: comment.body,
                             CREATED: comment.created_utc,
                             SCORE: comment.score,
                             PERMALINK: comment.permalink,
-                            SUBREDDIT: comment.subreddit}]
+                            SUBREDDIT: subRedditName}]
                         commentList.extend(buildRow)
         except praw.exceptions.ClientException:
             print("Google search returned non submission:" + result.link)
 
-    df = pd.DataFrame(commentList)
-    df = df[[AUTHOR, BODY, CREATED, SCORE, PERMALINK, SUBREDDIT]]
+    df = pd.DataFrame(data = commentList)
 
     return df
 
 
 def normalizeComment(sent): #NER should retain original comment
-    sent = processWord.expandContractions(sent)
-    sent = processWord.removeSpecialCharacters(sent)
-    sent = processWord.removeStopwords(sent)
+    sent = commentfilter.expandContractions(sent)
+    sent = commentfilter.removeSpecialCharacters(sent)
+    sent = commentfilter.removeStopwords(sent)
     return sent
 
 
@@ -87,12 +97,17 @@ def getSubbreddits(file):
     df = readDf(file)
     return df[SUBREDDIT].value_counts()
 
+def sanitize(value):
+    """
+    Normalizes string, converts to lowercase, removes non-alpha characters,
+    """
+    return value.replace(" ","_")
 
-df = extractCommentsFromSearch("ramen nyc" + SEARCH_REDDIT)
-df.to_csv(DATA_DIR + 'nyc_ramen.csv', index=False, encoding='utf-8')
-
-# Usage examples
-
-# print(getTopScoring(file = DATA_DIR + 'nyc_ramen.csv', n = 10 )['body'])
-
-# print(getSubbreddits(file = DATA_DIR + 'nyc_ramen.csv'))
+def searchAndExtract(argv):
+    df = extractCommentsFromSearch(argv + SEARCH_REDDIT)
+    # NERExtraction.createExtractedColumn(df)
+    # filename = sanitize(argv)
+    # path = f"data/tmp/{filename}.json"
+    path = f"data/tmp/ramen_nyc.json"
+    df.to_json(path)
+    return pd.read_json(path_or_buf=path).to_json()
