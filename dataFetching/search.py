@@ -17,7 +17,6 @@ SEARCH_REDDIT = ' site:reddit.com'
 
 # TODO REMOVE ON COMMIT - also find a more automatic solution
 
-
 # global vars for csv column names
 AUTHOR = 'author'
 BODY = 'body'
@@ -28,6 +27,7 @@ SCORE = 'score'
 
 
 def initRedditClient():
+    logger.add("log/file_{time}.log", level="TRACE", rotation="100 MB")
     return praw.Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, user_agent=USER_AGENT)
 
 
@@ -38,6 +38,7 @@ def extractCommentsFromSearch(searchString, googlePageLimit=1, commentDepth=None
     search_results = google.search(searchString, googlePageLimit)
 
     for result in search_results:
+        logger.debug(result)
         try:
             submission = reddit.submission(url=result.link)
             submission.comments.replace_more(limit=commentDepth)
@@ -105,9 +106,11 @@ def sanitize(value):
 
 def searchAndExtract(argv):
     df = extractCommentsFromSearch(argv + SEARCH_REDDIT)
-    # NERExtraction.createExtractedColumn(df)
-    # filename = sanitize(argv)
-    # path = f"data/tmp/{filename}.json"
-    path = f"data/tmp/ramen_nyc.json"
+    logger.debug(df.head())
+    NERExtraction.createExtractedColumn(df)
+    filename = sanitize(argv)
+    path = f"data/tmp/{filename}.json"
     df.to_json(path)
+
+    # path = f"data/tmp/ramen_nyc.json" #temp 
     return pd.read_json(path_or_buf=path).to_json()

@@ -109,7 +109,8 @@ def displayFreqDist(df):
     freq_words(listOfWords = eList, show=False)
 
 def createExtractedColumn(df):
-    df['extracted'] = df['body'].apply(lambda text: extractCandidatesFromSent(text))
+    df['extracted'] = df['body'].apply(lambda text: spacyTagging(text)) 
+    # df['extracted'] = df['body'].apply(lambda text: extractCandidatesFromSent(text))
     
 
 # df = pd.read_csv('../../data/nyc_ramen.csv')
