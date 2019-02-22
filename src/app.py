@@ -2,8 +2,8 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import json
 
-import dataFetching.search
-from dataFetching.processData import NERExtraction
+import search
+import gconfig 
 
 
 # configuration
@@ -26,20 +26,14 @@ def ping_pong():
 def search_with_posted_string():
     if not request.json:
         abort(400)
-    return jsonify(dataFetching.search.searchAndExtract(request.json['search']))
+    return jsonify(search.searchAndExtract(request.json['search']))
 
-@app.route('/topsubreddits', methods=['GET'])
-def top_subreddits():
-    return jsonify('pong!')
+@app.route('/', methods=['GET'])
+def health():
+    return "Hello"
 
-@app.route('/topextracted', methods=['GET'])
-def top_extracted():
-    return jsonify('pong!')
 
-def loadModules():
-    NERExtraction.loadAllenNlp()
 
 
 if __name__ == '__main__':
-    # loadModules()
-    app.run()
+    app.run(host='0.0.0.0', port=gconfig.PORT, debug=gconfig.DEBUG_MODE)

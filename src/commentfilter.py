@@ -2,7 +2,7 @@ import spacy
 import nltk
 import re
 from nltk.tokenize.toktok import ToktokTokenizer
-from dataFetching.contractions import CONTRACTION_MAP
+from contractions import CONTRACTION_MAP
 import unicodedata
 
 LANG = 'english'

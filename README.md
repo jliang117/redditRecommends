@@ -56,10 +56,10 @@ The set of tagged words extracted can be tweaked in `extract_candidate_words`, t
 
 Removing adjectives yields a better list specific to this kind of search, and so the frequency distribution gives you a few more places:
 
-![Adjectives NOT included](/img/freqDistNonAdj.png)
+![Adjectives NOT included](src/img/freqDistNonAdj.png)
 
 Looks like there's still room for improvement - if we already know the `location`, can't we match on things that are the location, and possibly similar things?
 
 Currently comparing Entity extraction between - Allen NLP, SpaCy, and Flair
 
-![On a sample comment](/img/allenNER.png)
+![On a sample comment](src/img/allenNER.png)

@@ -1,14 +1,21 @@
 import sys
 import json
 
+#external
 import praw
-from google import google
+# try:
+#     import googleSearcher.google
+# except:
+from googleSearcher import google
+# from google import google
 import pandas as pd
-
-from dataFetching import commentfilter
-from dataFetching.processData import NERExtraction
-
 from loguru import logger
+
+#local
+import commentfilter
+import spacyner
+
+
 
 DATA_DIR = '../data/'
 
@@ -16,6 +23,9 @@ PAGE_LIMIT = 1
 SEARCH_REDDIT = ' site:reddit.com'
 
 # TODO REMOVE ON COMMIT - also find a more automatic solution
+CLIENT_ID = 'TGx9s4azwjK2wQ'
+CLIENT_SECRET = 'C39wISck0di0SdxYBQLbqeFTwCo'
+USER_AGENT = 'script:redditRecommends:v0.0.1 (by /u/coldbumpysparse)'
 
 # global vars for csv column names
 AUTHOR = 'author'
@@ -102,15 +112,17 @@ def sanitize(value):
     """
     Normalizes string, converts to lowercase, removes non-alpha characters,
     """
-    return value.replace(" ","_")
+    value = value.replace(" ","_")
+    return value
 
 def searchAndExtract(argv):
+    logger.debug('Search string: ${argv}')
     df = extractCommentsFromSearch(argv + SEARCH_REDDIT)
-    logger.debug(df.head())
-    NERExtraction.createExtractedColumn(df)
+    spacyner.createExtractedColumn(df)
     filename = sanitize(argv)
     path = f"data/tmp/{filename}.json"
     df.to_json(path)
 
     # path = f"data/tmp/ramen_nyc.json" #temp 
     return pd.read_json(path_or_buf=path).to_json()
+
