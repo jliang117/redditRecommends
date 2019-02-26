@@ -6,7 +6,7 @@ RUN pip install --upgrade pip
 RUN pip install -r /requirements.txt 
 RUN python -m spacy download en
 
-RUN ls
+
 WORKDIR /app
 COPY src /app
 

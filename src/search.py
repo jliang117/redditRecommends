@@ -1,7 +1,7 @@
 import sys
 import json
 
-#external
+# external
 import praw
 # try:
 #     import googleSearcher.google
@@ -11,21 +11,14 @@ from googleSearcher import google
 import pandas as pd
 from loguru import logger
 
-#local
+# local
 import commentfilter
 import spacyner
-
-
-
-DATA_DIR = '../data/'
 
 PAGE_LIMIT = 1
 SEARCH_REDDIT = ' site:reddit.com'
 
 # TODO REMOVE ON COMMIT - also find a more automatic solution
-CLIENT_ID = 'TGx9s4azwjK2wQ'
-CLIENT_SECRET = 'C39wISck0di0SdxYBQLbqeFTwCo'
-USER_AGENT = 'script:redditRecommends:v0.0.1 (by /u/coldbumpysparse)'
 
 # global vars for csv column names
 AUTHOR = 'author'
@@ -71,12 +64,12 @@ def extractCommentsFromSearch(searchString, googlePageLimit=1, commentDepth=None
         except praw.exceptions.ClientException:
             print("Google search returned non submission:" + result.link)
 
-    df = pd.DataFrame(data = commentList)
+    df = pd.DataFrame(data=commentList)
 
     return df
 
 
-def normalizeComment(sent): #NER should retain original comment
+def normalizeComment(sent):  #NER should retain original comment
     sent = commentfilter.expandContractions(sent)
     sent = commentfilter.removeSpecialCharacters(sent)
     sent = commentfilter.removeStopwords(sent)
@@ -108,21 +101,22 @@ def getSubbreddits(file):
     df = readDf(file)
     return df[SUBREDDIT].value_counts()
 
+
 def sanitize(value):
     """
     Normalizes string, converts to lowercase, removes non-alpha characters,
     """
-    value = value.replace(" ","_")
+    value = value.replace(" ", "_")
     return value
 
+
 def searchAndExtract(argv):
-    logger.debug('Search string: ${argv}')
+    logger.debug(f'Search string: {argv}')
     df = extractCommentsFromSearch(argv + SEARCH_REDDIT)
     spacyner.createExtractedColumn(df)
     filename = sanitize(argv)
     path = f"data/tmp/{filename}.json"
     df.to_json(path)
 
-    # path = f"data/tmp/ramen_nyc.json" #temp 
+    # path = f"data/tmp/ramen_nyc.json" #temp
     return pd.read_json(path_or_buf=path).to_json()
-

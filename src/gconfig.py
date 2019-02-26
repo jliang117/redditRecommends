@@ -5,3 +5,4 @@ DEBUG_MODE = int(env.get("DEBUG_MODE", 1))
 
 # Gunicorn config
 bind = ":" + str(PORT)
+timeout = 60
