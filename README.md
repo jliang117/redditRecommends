@@ -35,14 +35,18 @@ Add your reddit credentials to `search.py` as shown [here](https://github.com/re
     USER_AGENT = 'script:redditRecommends:v0.0.1 '
     
 
-Build using [docker](https://www.docker.com/): `docker build -t gcr.io/redrec-232302/flask-app:0.0.2 .`
+Build using [docker](https://www.docker.com/): `docker build -t searchReddit .`
 
-Run using: `docker run -p 4000:8080 gcr.io/redrec-232302/flask-app:0.0.1`
+Run using: `docker run -p 4000:8080 searchReddit`
 
-A service is launched at port `8080`, which you can curl to: `curl -i -H "Content-Type: application/json" -X POST -d '{"search":"ramen nyc"}' http://localhost:4000/search' (the run command maps port 8080 in the container to 4000 on your local machine, the port can be specified in dockerfile `ENV PORT 8080`
+A service is launched at port `4000`, which you can curl to: 
+
+`curl -i -H "Content-Type: application/json" -X POST -d '{"search":"ramen nyc"}' http://localhost:4000/search`
+
+(the run command maps port 8080 in the container to 4000 on your local machine, the port can be specified in dockerfile `ENV PORT 8080`
 
 # Output
 
 A jsonified dataframe to be parsed by the [front end](https://github.com/jliang117/redditRecommendsVue)
 
-A web example is here: https://redrec.herokuapp.com (url to hopefully change soon...)
+Demo: https://redrec.herokuapp.com (url to hopefully change soon...)
