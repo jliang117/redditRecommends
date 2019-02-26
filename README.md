@@ -41,7 +41,7 @@ Run using: `docker run -p 4000:8080 searchReddit`
 
 A service is launched at port `4000`, which you can curl to: 
 
-`curl -i -H "Content-Type: application/json" -X POST -d '{"search":"ramen nyc"}' http://localhost:4000/search'`
+`curl -i -H "Content-Type: application/json" -X POST -d '{"search":"ramen nyc"}' http://localhost:4000/search`
 
 (the run command maps port 8080 in the container to 4000 on your local machine, the port can be specified in dockerfile `ENV PORT 8080`
 
