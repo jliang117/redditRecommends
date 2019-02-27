@@ -26,7 +26,7 @@ def ping_pong():
 def search_with_posted_string():
     if not request.json:
         abort(400)
-    return jsonify(search.searchAndExtract(request.json['search']))
+    return search.searchAndExtract(request.json['search'])
 
 @app.route('/', methods=['GET'])
 def health():

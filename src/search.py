@@ -3,11 +3,7 @@ import json
 
 # external
 import praw
-# try:
-#     import googleSearcher.google
-# except:
 from googleSearcher import google
-# from google import google
 import pandas as pd
 from loguru import logger
 
@@ -60,6 +56,7 @@ def extractCommentsFromSearch(searchString, googlePageLimit=1, commentDepth=None
                             SCORE: comment.score,
                             PERMALINK: comment.permalink,
                             SUBREDDIT: subRedditName}]
+                        logger.debug(f'Adding comment {buildRow}')
                         commentList.extend(buildRow)
         except praw.exceptions.ClientException:
             print("Google search returned non submission:" + result.link)
@@ -103,20 +100,25 @@ def getSubbreddits(file):
 
 
 def sanitize(value):
+
     """
     Normalizes string, converts to lowercase, removes non-alpha characters,
     """
+    import re
+    re.sub('[^\w\-_\. ]', '_', value)
     value = value.replace(" ", "_")
+    logger.debug(f'Saving file with sanitized name: {value}')
     return value
 
 
 def searchAndExtract(argv):
-    logger.debug(f'Search string: {argv}')
+    logger.info(f'Search string: {argv}')
     df = extractCommentsFromSearch(argv + SEARCH_REDDIT)
+    logger.info('Creating extracted column...')
     spacyner.createExtractedColumn(df)
     filename = sanitize(argv)
     path = f"data/tmp/{filename}.json"
     df.to_json(path)
-
+    logger.info('Returning jsonified dataframe')
     # path = f"data/tmp/ramen_nyc.json" #temp
     return pd.read_json(path_or_buf=path).to_json()
