@@ -32,6 +32,9 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# VSCode
+.vscode/
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
