@@ -22,9 +22,10 @@ def loadSpacy():
 
 
 def spacyTagging(sents):
-    nlp = loadSpacy()
+    nlp = loadSpacy()  # check for similar entities per comment
     doc = nlp(sents)
-    return consolidateEntities(doc.ents)
+    return [ent.text for ent in doc.ents]
+    # return consolidateEntities(doc.ents)
 
 
 def spacyValues(df):
@@ -57,13 +58,9 @@ Useful for removing extraneous entites that clog up results:
 
 RETURNs a list of strings that
 """
-
-
 def consolidateEntities(listOfEnts):
-    global ENTITYSET
     logger.debug(f'Entities in set:{ENTITYSET}')
     logger.debug(f'Checking entities:{listOfEnts}')
-
     retList = []
     if all(isinstance(ele, str) for ele in listOfEnts) is not True:
         listOfEnts = [span.text for span in listOfEnts]

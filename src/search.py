@@ -1,5 +1,6 @@
 import sys
 import json
+import re
 
 # external
 import praw
@@ -16,6 +17,7 @@ SEARCH_REDDIT = ' site:reddit.com'
 
 # TODO REMOVE ON COMMIT - also find a more automatic solution
 
+
 # global vars for csv column names
 AUTHOR = 'author'
 BODY = 'body'
@@ -23,6 +25,9 @@ CREATED = 'created_utc'
 PERMALINK = 'permalink'
 SUBREDDIT = 'subreddit'
 SCORE = 'score'
+
+# match on reddit links only
+LINK_REGEX = 'www\.reddit\.(com)\/(.?)'
 
 
 def initRedditClient():
@@ -37,7 +42,10 @@ def extractCommentsFromSearch(searchString, googlePageLimit=1, commentDepth=None
     search_results = google.search(searchString, googlePageLimit)
 
     for result in search_results:
-        logger.debug(result)
+        logger.debug(f'Getting comments from link:{result.link}')
+        if re.search(LINK_REGEX, result.link) is None:
+            logger.error(f'bad link:{result.link}')
+            continue
         try:
             submission = reddit.submission(url=result.link)
             submission.comments.replace_more(limit=commentDepth)
@@ -56,7 +64,6 @@ def extractCommentsFromSearch(searchString, googlePageLimit=1, commentDepth=None
                             SCORE: comment.score,
                             PERMALINK: comment.permalink,
                             SUBREDDIT: subRedditName}]
-                        logger.debug(f'Adding comment {buildRow}')
                         commentList.extend(buildRow)
         except praw.exceptions.ClientException:
             print("Google search returned non submission:" + result.link)
