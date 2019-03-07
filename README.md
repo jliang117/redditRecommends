@@ -26,6 +26,27 @@ using nltk - https://github.com/nltk/nltk and implemented in `commentfilter.py`
 
 Named Entity Recognition doesn't make use of much normalization, but other downstream tasks *might*
 
+**Extraction**
+
+using spaCy - https://github.com/explosion/spaCy and implemented in `spacyner.py`
+
+Currently using the built in entity extraction, eventually I'd like to build upon this more to not only get the sent of entites but also an entire set of text analysis - something similar to:
+
+Example sentence:
+
+`Ippudo is overhyped in my book. My go to is Hide Chan, their East side location is the best imo`
+
+Extracted data:
+    {
+    entities: ["Ippudo", "Hide-Chan", "East"],
+    nounPhrases:[...],
+    entitySentiment:[...],
+    ...
+    }
+
+I'm currently still unsure of what exactly would be useful...
+    
+
 # Usage
 
 Add your reddit credentials to `search.py` as shown [here](https://github.com/reddit-archive/reddit/wiki/OAuth2-Quick-Start-Example#first-steps)
