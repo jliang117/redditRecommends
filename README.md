@@ -37,11 +37,12 @@ Example sentence:
 `Ippudo is overhyped in my book. My go to is Hide Chan, their East side location is the best imo`
 
 Extracted data:
+    
     {
     entities: ["Ippudo", "Hide-Chan", "East"],
     nounPhrases:[...],
     entitySentiment:[...],
-    ...
+    and probably more...
     }
 
 I'm currently still unsure of what exactly would be useful...
