@@ -16,7 +16,11 @@ PAGE_LIMIT = 1
 SEARCH_REDDIT = ' site:reddit.com'
 
 # TODO REMOVE ON COMMIT - also find a more automatic solution
+CLIENT_ID = 'TGx9s4azwjK2wQ'
+CLIENT_SECRET = 'C39wISck0di0SdxYBQLbqeFTwCo'
+USER_AGENT = 'script:redditRecommends:v0.0.1 (by /u/coldbumpysparse)'
 
+GOOGLE_PAGE_LIM = 1
 
 # global vars for csv column names
 AUTHOR = 'author'
@@ -35,45 +39,58 @@ def initRedditClient():
     return praw.Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, user_agent=USER_AGENT)
 
 
-def extractCommentsFromSearch(searchString, googlePageLimit=1, commentDepth=None):
+def getGoogleResultsFromSearch(searchString, googlePageLimit=GOOGLE_PAGE_LIM):
+    return google.search(searchString, googlePageLimit)
 
-    commentList = []
+
+def convertSearchResultsToDataframe(googleResults):
     reddit = initRedditClient()
-    search_results = google.search(searchString, googlePageLimit)
-
-    for result in search_results:
-        logger.debug(f'Getting comments from link:{result.link}')
-        if re.search(LINK_REGEX, result.link) is None:
-            logger.error(f'bad link:{result.link}')
-            continue
-        try:
-            submission = reddit.submission(url=result.link)
-            submission.comments.replace_more(limit=commentDepth)
-            for comment in submission.comments.list():
-                if(filterCommentForRelevancy(comment)):
-                    if len(comment.body) > 3:
-                        if comment.author is not None:
-                            redditName = comment.author.name
-                        else:
-                            redditName = ''
-                        subRedditName = comment.subreddit.display_name
-                        buildRow = [{
-                            AUTHOR: redditName,
-                            BODY: comment.body,
-                            CREATED: comment.created_utc,
-                            SCORE: comment.score,
-                            PERMALINK: comment.permalink,
-                            SUBREDDIT: subRedditName}]
-                        commentList.extend(buildRow)
-        except praw.exceptions.ClientException:
-            print("Google search returned non submission:" + result.link)
-
-    df = pd.DataFrame(data=commentList)
-
-    return df
+    resultLinkData = []
+    for result in googleResults:
+        if isValidLink(result):
+            resultLinkData.extend(convertResultToData(result, reddit))
+    return pd.DataFrame(data=resultLinkData)
 
 
-def normalizeComment(sent):  #NER should retain original comment
+def isValidLink(result):
+    if re.search(LINK_REGEX, result.link) is None:
+        logger.warn(f'bad link averted:{result.link}')
+        return False
+    return True
+
+
+def convertResultToData(result, reddit):
+    resultData = []
+    logger.debug(f'Getting comments from link:{result.link}')
+    try:
+        submission = reddit.submission(url=result.link)
+        submission.comments.replace_more()
+        for comment in submission.comments.list():
+            if(filterCommentForRelevancy(comment)):
+                resultData.extend(buildRowFromComment(comment))
+    except praw.exceptions.ClientException:
+        logger.warn("Google search returned non submission:" + result.link)
+    return resultData
+
+
+def buildRowFromComment(comment):
+    redditName = checkCommentAuthor(comment)
+    subredditName = comment.subreddit.display_name
+    builtRow = [{
+        AUTHOR: redditName,
+        BODY: comment.body,
+        CREATED: comment.created_utc,
+        SCORE: comment.score,
+        PERMALINK: comment.permalink,
+        SUBREDDIT: subredditName}]
+    return builtRow
+
+
+def checkCommentAuthor(comment):
+    return comment.author.name if comment.author is not None else ''
+
+
+def normalizeComment(sent):  # NER should retain original comment
     sent = commentfilter.expandContractions(sent)
     sent = commentfilter.removeSpecialCharacters(sent)
     sent = commentfilter.removeStopwords(sent)
@@ -81,29 +98,8 @@ def normalizeComment(sent):  #NER should retain original comment
 
 
 def filterCommentForRelevancy(comment):
-    return True
+    return len(comment.body) > 3
     # potentially do preprocessing here as well
-
-
-# move this to separate dataframe insights script? or create two classes, commentExtractor and dfData?
-
-def readDf(file):
-    try:
-        df = pd.read_csv(file)
-        return df
-    except IOError as e:
-        print(file + " cannot be read")
-        sys.exit()
-
-
-def getTopScoring(file, n=5):
-    df = readDf(file)
-    return df.nlargest(n=n, columns=SCORE)
-
-
-def getSubbreddits(file):
-    df = readDf(file)
-    return df[SUBREDDIT].value_counts()
 
 
 def sanitize(value):
@@ -120,12 +116,9 @@ def sanitize(value):
 
 def searchAndExtract(argv):
     logger.info(f'Search string: {argv}')
-    df = extractCommentsFromSearch(argv + SEARCH_REDDIT)
+    googleResults = getGoogleResultsFromSearch(argv + SEARCH_REDDIT)
+    df = convertSearchResultsToDataframe(googleResults)
     logger.info('Creating extracted column...')
     spacyner.createExtractedColumn(df)
-    filename = sanitize(argv)
-    path = f"data/tmp/{filename}.json"
-    df.to_json(path)
-    logger.info('Returning jsonified dataframe')
-    # path = f"data/tmp/ramen_nyc.json" #temp
-    return pd.read_json(path_or_buf=path).to_json()
+    json = df.to_json()
+    return json
