@@ -8,19 +8,24 @@ from googleSearcher import google
 import pandas as pd
 from loguru import logger
 
+from multiprocessing import Pool as CPUThreadPool
+from multiprocessing.dummy import Pool as IOThreadPool
+import time
+
 # local
 import commentfilter
 import spacyner
 
-PAGE_LIMIT = 1
+GOOGLE_PAGE_LIMIT = 1
+REPLACE_MORE_LIMIT= 3
 SEARCH_REDDIT = ' site:reddit.com'
 
 # TODO REMOVE ON COMMIT - also find a more automatic solution
 CLIENT_ID = 'TGx9s4azwjK2wQ'
 CLIENT_SECRET = 'C39wISck0di0SdxYBQLbqeFTwCo'
-USER_AGENT = 'script:redditRecommends:v0.0.1 (by /u/coldbumpysparse)'
+USER_AGENT = 'script:redditRecommends:v0.0.1'
 
-GOOGLE_PAGE_LIM = 1
+
 
 # global vars for csv column names
 AUTHOR = 'author'
@@ -39,35 +44,60 @@ def initRedditClient():
     return praw.Reddit(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, user_agent=USER_AGENT)
 
 
-def getGoogleResultsFromSearch(searchString, googlePageLimit=GOOGLE_PAGE_LIM):
+def createIOThreadPool(num=None):
+    return IOThreadPool(processes=num)
+
+
+def createCPUThreadPool(num=None):
+    return CPUThreadPool(processes=num)
+
+
+def getGoogleResultsFromSearch(searchString, googlePageLimit=GOOGLE_PAGE_LIMIT):
     return google.search(searchString, googlePageLimit)
 
 
 def convertSearchResultsToDataframe(googleResults):
-    reddit = initRedditClient()
-    resultLinkData = []
-    for result in googleResults:
-        if isValidLink(result):
-            resultLinkData.extend(convertResultToData(result, reddit))
-    return pd.DataFrame(data=resultLinkData)
+    googleResults = [result for result in googleResults if isResultValidLink(result)]
+    commentsFromResult = []
+    startNonPool = time.time()
+    commentsFromResult = resultsToCommentListParallel(googleResults)
+    logger.warning(f'converting took: {time.time()-startNonPool}')
+
+    df = pd.DataFrame(data=commentsFromResult)
+    logger.info(df.head())
+
+    return df
 
 
-def isValidLink(result):
+def isResultValidLink(result):
     if re.search(LINK_REGEX, result.link) is None:
-        logger.warn(f'bad link averted:{result.link}')
+        logger.warning(f'bad link averted:{result.link}')
         return False
     return True
 
 
-def convertResultToData(result, reddit):
+def resultsToCommentListParallel(googleResults):
+    results = []
+    reddit = initRedditClient()
+    pool = createIOThreadPool()
+    pool.starmap_async(convertResultToCommentList, [(result, reddit) for result in googleResults],callback=lambda r:results.extend(r))
+    pool.close()
+    pool.join()
+    # somehow starmapping returns a list of a list of comments for each result
+    return [commentRow for listOfComments in results for commentRow in listOfComments]
+
+
+def convertResultToCommentList(result, reddit):
     resultData = []
     logger.debug(f'Getting comments from link:{result.link}')
     try:
         submission = reddit.submission(url=result.link)
-        submission.comments.replace_more()
+        submission.comments.replace_more(REPLACE_MORE_LIMIT)
+        buildRowTime = time.time()
         for comment in submission.comments.list():
             if(filterCommentForRelevancy(comment)):
                 resultData.extend(buildRowFromComment(comment))
+        logger.warning(f'building rows took {time.time()-buildRowTime}')
     except praw.exceptions.ClientException:
         logger.warn("Google search returned non submission:" + result.link)
     return resultData
